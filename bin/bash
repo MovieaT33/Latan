@@ -1,0 +1,222 @@
+"""
+Bash
+"""
+
+import os
+import datetime
+from dotenv import load_dotenv
+
+
+load_dotenv("./etc/environment")
+
+
+def start(program_name: str) -> None:
+    """
+    Start function
+
+    Args:
+        program_name (str): Program name
+    """
+
+    for path in os.environ["$PATH"].split(":"):
+        try:
+            with open(
+                os.path.join(path, program_name), "r", encoding="utf-8"
+            ) as file:
+                exec(file.read(), globals())  # pylint:disable=W0122
+
+            return
+        except FileNotFoundError:
+            ...
+
+    print("bash: command not found")
+
+
+def exec_(
+        command: str, history_enabled: bool = True
+        ) -> None | int:  # pylint:disable=W0621, R0911, R0912, R0915
+    """
+    Execute function
+
+    Args:
+        command (str): Command
+        history_enabled (bool, optional): History enabled. Defaults to True.
+
+    Returns:
+        None | int: Output
+    """
+
+    if command.strip() == "":
+        return
+
+    if history_enabled:
+        try:
+            with open(
+                "C:/Users/User/bin/Linux/.bashrc", "r", encoding="utf-8"
+            ) as file:
+                try:
+                    history_len: int = int(file.readlines()[-1].split()[0]) + 1
+                except IndexError:
+                    history_len: int = 0
+
+            with open(
+                "C:/Users/User/bin/Linux/.bashrc", "a", encoding="utf-8"
+            ) as file:
+                file.write(f" {history_len} {command}\n")
+        except FileNotFoundError as err:
+            print(err)
+
+    program_name: str = command.split()[0]
+    args: str = command.partition(" ")[2]
+
+    match program_name:
+        case ".":
+            # TODO: "." command
+            ...
+        case "cd":
+            if args.strip() == "":
+                return
+
+            try:
+                os.chdir(args)
+            except OSError as err:
+                print(err)
+        case "chdir":
+            exec_(f"cd {args}", history_enabled=False)
+        case "command":
+            exec_(args, history_enabled=False)
+        case "echo":
+            print(args)
+        case "exit":
+            print("logout")
+
+            code: int = 0
+            if args != "":
+                try:
+                    code = int(args)
+                except ValueError:
+                    print(f"bash: exit: {args}: numeric argument required")
+                    code = 2
+
+            print()
+            return code
+        case "help":
+            command_descriptions: dict[str, str] = {}
+
+            if args != "":
+                print(
+                    command_descriptions.get(
+                        args,
+                        f"bash: help: no help \
+topics match `{args}`.",
+                    )
+                )
+                return
+
+            print(
+                """Built-in commands:
+------------------
+        . cd chdir command echo exit help history printenv printf pwd bash cat\
+ clear date ls sleep uname"""
+            )
+        case "history":
+            try:
+                if args == "-c":
+                    with open(
+                        "C:/Users/User/bin/Linux/.bashrc",
+                        "w",
+                        encoding="utf-8"
+                    ) as file:
+                        file.write("")
+
+                    return
+
+                with open(
+                    "C:/Users/User/bin/Linux/.bashrc", "r", encoding="utf-8"
+                ) as file:
+                    print("\n".join(file.read().splitlines()))
+            except OSError as err:
+                print(err)
+        case "printenv":
+            if args == "":
+                print(
+                    "\n".join([
+                        f"{key}={value}" for key, value in os.environ.items()
+                    ])
+                )
+
+            var: str | None = os.getenv(args)
+            if var is not None:
+                print(var)
+        case "printf":
+            print(args, end="")
+        case "pwd":
+            print(os.getcwd())
+        case "cat":
+            if len(command.split()) == 1:
+                return
+
+            with open(args, "r", encoding="utf-8") as file:
+                print(file.read())
+        case "clear":
+            print("\033[H\033[J", end="")
+        case "date":
+            print(datetime.datetime.now())
+        case "ls":
+            path: str = "."
+            if args != "":
+                path = args
+
+            try:
+                elements: str = "\n".join(
+                    [
+                        _
+                        if os.path.isfile(os.path.join(path, _))
+                        else f"\033[1m\033[34m{_}\
+\033[0m"
+                        for _ in os.listdir(path)
+                    ]
+                )
+            except OSError as err:
+                print(err)
+                return
+
+            if elements:
+                print(elements)
+        case "sleep":
+            try:
+                timestamp: float = float(command.split()[1])
+            except IndexError:
+                print("Usage: sleep [N]...")
+                return
+            except ValueError:
+                print("Usage: sleep [N]...")
+                return
+
+            end_time: datetime.datetime = datetime.datetime.now() + \
+                datetime.timedelta(seconds=timestamp)
+            while datetime.datetime.now() <= end_time:
+                ...
+        case "uname":
+            if args == "-r":
+                print("1.0.0")
+                return
+            print("Linux")
+        case _:
+            start(program_name)
+
+
+while True:
+    command: str = input(
+        f"# \
+{os.getcwd().replace(os.path.expanduser('~'), '~')} "
+    )
+
+    output: None | int = exec_(command)
+    if isinstance(output, int):
+        if output == 0:
+            input("[Process completed - press Enter]")
+        else:
+            input(f"[Process completed (code {output}) - press Enter]")
+
+        break

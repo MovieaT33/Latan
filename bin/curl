@@ -1,0 +1,28 @@
+"""
+Curl
+"""
+
+import requests  # pylint:disable=E0401
+
+
+args: str = command.partition(" ")[2]  # noqa: F821 pylint:disable=E0602
+
+
+if args in ["-h", "--help"]:
+    print(
+        """Usage: curl <url>
+ -h, --help    Get help for commands
+ -V, --version Show version number and quit"""
+    )
+elif args in ["-V", "--version"]:
+    print(
+        """curl 1.0.0
+Release-Date: 2024-01-04
+Protocols: http"""
+    )
+else:
+    try:
+        response: requests.Response = requests.get(args)
+        print(response.text)
+    except requests.exceptions.RequestException as err:
+        print(err)
