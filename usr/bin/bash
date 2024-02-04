@@ -52,7 +52,7 @@ def exec_(
     if history_enabled:
         try:
             with open(
-                "C:/Users/User/bin/Linux/.bashrc", "r", encoding="utf-8"
+                "/workspaces/latan/.bashrc", "r", encoding="utf-8"
             ) as file:
                 try:
                     history_len: int = int(file.readlines()[-1].split()[0]) + 1
@@ -60,7 +60,7 @@ def exec_(
                     history_len: int = 0
 
             with open(
-                "C:/Users/User/bin/Linux/.bashrc", "a", encoding="utf-8"
+                "/workspaces/latan/.bashrc", "a", encoding="utf-8"
             ) as file:
                 file.write(f" {history_len} {command}\n")
         except FileNotFoundError as err:
@@ -123,7 +123,7 @@ topics match `{args}`.",
             try:
                 if args == "-c":
                     with open(
-                        "C:/Users/User/bin/Linux/.bashrc",
+                        "/workspaces/latan/.bashrc",
                         "w",
                         encoding="utf-8"
                     ) as file:
@@ -132,7 +132,7 @@ topics match `{args}`.",
                     return
 
                 with open(
-                    "C:/Users/User/bin/Linux/.bashrc", "r", encoding="utf-8"
+                    "/workspaces/latan/.bashrc", "r", encoding="utf-8"
                 ) as file:
                     print("\n".join(file.read().splitlines()))
             except OSError as err:
@@ -199,9 +199,9 @@ topics match `{args}`.",
                 ...
         case "uname":
             if args == "-r":
-                print("1.0.0")
+                print("1.0.1")
                 return
-            print("Linux")
+            print("Latan")
         case _:
             start(program_name)
 
